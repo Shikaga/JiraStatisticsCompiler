@@ -64,3 +64,23 @@ StatisticsCalculator.prototype.getResolution = function(optionalIssues) {
 
     return resolutionMap;
 }
+
+StatisticsCalculator.prototype.getReporters = function(optionalIssues) {
+    var issues = optionalIssues ? optionalIssues : this.issueArray;
+    var reporterMap = {};
+
+    function initialiseReporterIfEmpty(key) {
+      if (!reporterMap[key]) {
+        reporterMap[key] = [];
+      }
+    }
+
+    issues.forEach(function(issue) {
+      var reporter = issue.fields.reporter.displayName
+
+      initialiseReporterIfEmpty(reporter);
+      reporterMap[reporter].push(issue);
+    })
+
+    return reporterMap;
+}
