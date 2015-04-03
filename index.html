@@ -36,8 +36,8 @@
 
 		</script>
 		<script>
-			require(['lib/react', 'AgileBoardStockTaker', "StatisticsCalculator"], function(React, AgileBoardStockTaker, StatisticsCalculator) {
-				React.renderComponent(AgileBoardStockTaker(), document.getElementById('main'));
+			require(['lib/react', 'JiraStatisticsCompilerPanel', 'StatisticsCalculator'], function(React, JiraStatisticsCompilerPanel, StatisticsCalculator) {
+				React.renderComponent(JiraStatisticsCompilerPanel(), document.getElementById('main'));
 
 				function IssueHandler() {
 					this.issues = [];
