@@ -73,6 +73,16 @@ function getResolutionTime(issue) {
   return null;
 }
 
+StatisticsCalculator.prototype.getIssuesCreatedBeforeOrOn = function(date, optionalIssues) {
+  var issues = optionalIssues ? optionalIssues : this.issueArray;
+  return issues.filter(function(issue) { return parseDate(issue.fields.created) <= date });
+}
+
+StatisticsCalculator.prototype.getIssuesCreatedAfterOrOn = function(date, optionalIssues) {
+  var issues = optionalIssues ? optionalIssues : this.issueArray;
+  return issues.filter(function(issue) { return parseDate(issue.fields.created) >= date });
+}
+
 StatisticsCalculator.prototype.getPriorities = function(optionalIssues) {
   var issues = optionalIssues ? optionalIssues : this.issueArray;
   var priorityMap = {};
