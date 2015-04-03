@@ -26,6 +26,13 @@
 			weekMap[thisWeek.getTime()] = {raised: [], resolved: []}
 		}
 
+		function parseDate(dateTimeString) {
+			var dateString = dateTimeString.substr(0,dateTimeString.indexOf("T"));
+			var dateArray = dateString.split("-");
+			var date = new Date(dateArray[0],dateArray[1]-1,dateArray[2]);
+			return date;
+		}
+
 
 		</script>
 		<script type="text/jsx">
@@ -145,13 +152,6 @@
 					// }.bind(this), username, password, url + "/rest/greenhopper/1.0/rapidviews/viewsData.json");
 				},
 				saveLoginDetails: function() {
-
-				},
-				parseDate: function(dateTimeString) {
-					var dateString = dateTimeString.substr(0,dateTimeString.indexOf("T"));
-					var dateArray = dateString.split("-");
-					var date = new Date(dateArray[0],dateArray[1]-1,dateArray[2]);
-					return date;
 
 				},
 				selectProject: function(projectId) {

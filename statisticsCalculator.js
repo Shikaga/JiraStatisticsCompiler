@@ -2,6 +2,35 @@ function StatisticsCalculator(issueArray) {
   this.issueArray = issueArray;
 }
 
+function getStartDate(issue) {
+  return parseDate(issue.fields.created);
+}
+
+function getResolutionDate(issue) {
+  var finalState = null;
+  var finalDate = null;
+  issue.changelog.histories.forEach(function(history) {
+    var dateOccured = parseDate(history.created);
+    history.items.forEach(function(item) {
+      if (item.field == "status" && item.toString == "Resolved") {
+        finalState = item.toString;
+        finalDate = dateOccured;
+      }
+    }.bind(this));
+  });
+  return finalDate;
+}
+
+function getResolutionTime(issue) {
+  var startDate = getStartDate(issue);
+  var resolutionDate = getResolutionDate(issue);
+
+  if (resolutionDate) {
+    return Math.round((resolutionDate - startDate) / 1000 / 60 / 60 / 24);
+  }
+  return null;
+}
+
 StatisticsCalculator.prototype.getPriorities = function(optionalIssues) {
   var issues = optionalIssues ? optionalIssues : this.issueArray;
   var priorityMap = {};
@@ -83,4 +112,25 @@ StatisticsCalculator.prototype.getReporters = function(optionalIssues) {
     })
 
     return reporterMap;
+}
+
+StatisticsCalculator.prototype.getResolutionTime = function(optionalIssues) {
+    var issues = optionalIssues ? optionalIssues : this.issueArray;
+    var resolutionMap = {};
+
+    function initialiseResolutionIfEmpty(key) {
+      if (!resolutionMap[key]) {
+        resolutionMap[key] = [];
+      }
+    }
+
+
+    issues.forEach(function(issue) {
+      var resolutionTime = getResolutionTime(issue);
+
+      initialiseResolutionIfEmpty(resolutionTime);
+      resolutionMap[resolutionTime].push(issue);
+    })
+
+    return resolutionMap;
 }
