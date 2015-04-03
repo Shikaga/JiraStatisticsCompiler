@@ -73,16 +73,36 @@ function getResolutionTime(issue) {
   return null;
 }
 
+/**
+* Returns issues created before or on a certain date
+*
+* date: Date object
+* optionalIssues: Array of issues to filter on. Filters on all issues if not present
+*/
 StatisticsCalculator.prototype.getIssuesCreatedBeforeOrOn = function(date, optionalIssues) {
   var issues = optionalIssues ? optionalIssues : this.issueArray;
   return issues.filter(function(issue) { return parseDate(issue.fields.created) <= date });
 }
 
+
+/**
+* Returns issues created after or on a certain date
+*
+* date: Date object
+* optionalIssues: Array of issues to filter on. Filters on all issues if not present
+*/
 StatisticsCalculator.prototype.getIssuesCreatedAfterOrOn = function(date, optionalIssues) {
   var issues = optionalIssues ? optionalIssues : this.issueArray;
   return issues.filter(function(issue) { return parseDate(issue.fields.created) >= date });
 }
 
+
+/**
+* Returns a map of priorities to an array of issues
+* e.g. {"High": [issue1Obj, issue2Obj], "Medium": [issue3Obj]}
+*
+* optionalIssues: Array of issues to filter on. Filters on all issues if not present
+*/
 StatisticsCalculator.prototype.getPriorities = function(optionalIssues) {
   var issues = optionalIssues ? optionalIssues : this.issueArray;
   var priorityMap = {};
@@ -106,6 +126,12 @@ StatisticsCalculator.prototype.getPriorities = function(optionalIssues) {
   return {issues: issueMap, priorityMap: priorityMap}
 }
 
+/**
+* Returns a map of components to an array of issues
+* e.g. {"Browser": [issue1Obj, issue2Obj], "Server": [issue3Obj]}
+*
+* optionalIssues: Array of issues to filter on. Filters on all issues if not present
+*/
 StatisticsCalculator.prototype.getComponents = function(optionalIssues) {
   var issues = optionalIssues ? optionalIssues : this.issueArray;
   var componentMap = {};
@@ -126,6 +152,12 @@ StatisticsCalculator.prototype.getComponents = function(optionalIssues) {
   return componentMap;
 }
 
+/**
+* Returns a map of resolutions to an array of issues
+* e.g. {"Fixed": [issue1Obj, issue2Obj], "Not a bug": [issue3Obj]}
+*
+* optionalIssues: Array of issues to filter on. Filters on all issues if not present
+*/
 StatisticsCalculator.prototype.getResolution = function(optionalIssues) {
     var issues = optionalIssues ? optionalIssues : this.issueArray;
     var resolutionMap = {};
@@ -146,6 +178,13 @@ StatisticsCalculator.prototype.getResolution = function(optionalIssues) {
     return resolutionMap;
 }
 
+
+/**
+* Returns a map of reporters to an array of issues
+* e.g. {"John Smith": [issue1Obj, issue2Obj], "Father Ted": [issue3Obj]}
+*
+* optionalIssues: Array of issues to filter on. Filters on all issues if not present
+*/
 StatisticsCalculator.prototype.getReporters = function(optionalIssues) {
     var issues = optionalIssues ? optionalIssues : this.issueArray;
     var reporterMap = {};
@@ -166,6 +205,13 @@ StatisticsCalculator.prototype.getReporters = function(optionalIssues) {
     return reporterMap;
 }
 
+
+/**
+* Returns a map of days to resolution to an array of issues. "null" key if not resolved
+* e.g. {4: [issue1Obj, issue2Obj], 10: [issue3Obj], null: [issue4Obj]}
+*
+* optionalIssues: Array of issues to filter on. Filters on all issues if not present
+*/
 StatisticsCalculator.prototype.getResolutionTime = function(optionalIssues) {
     var issues = optionalIssues ? optionalIssues : this.issueArray;
     var resolutionMap = {};
@@ -187,6 +233,13 @@ StatisticsCalculator.prototype.getResolutionTime = function(optionalIssues) {
     return resolutionMap;
 }
 
+/**
+* Returns an array of objects, which includes an issue and a with map of
+* how many days that issue was in each column
+* e.g. [{issue: issue1Obj, columnDuration: {"In Dev": 5, "In Test": 2, "Closed": 112}}]
+*
+* optionalIssues: Array of issues to filter on. Filters on all issues if not present
+*/
 StatisticsCalculator.prototype.getColumnDuration = function(optionalIssues) {
     var issues = optionalIssues ? optionalIssues : this.issueArray;
     var issuesArray = [];
