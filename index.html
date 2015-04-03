@@ -185,15 +185,7 @@
 					}.bind(this), this.state.username, this.state.password, this.state.url + "/rest/api/latest/search?jql=project=" + window.location.search.substr(1) + " AND issuetype=Bug&maxResults=1000&expand=changelog");
 				},
 				render: function() {
-					if (this.state.mode === "login") {
-						return <div className="container"><LoginPanel login={this.login}></LoginPanel></div>
-					} else if (this.state.mode === "loggedIn") {
-						return StatisticsPanel({issues: this.state.issues})
-					} else {
-						return <div className="container">
-							Something went terribly wrong...
-						</div>
-					}
+					return React.DOM.div({className: "container"}, LoginPanel());
 				}
 			});
 
