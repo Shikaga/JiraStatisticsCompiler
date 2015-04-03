@@ -43,6 +43,7 @@ function getTotalTimeInColumns(issue) {
 function getColumnChanges(issue) {
   var previousDate = getStartDate(issue);
   var transitionArray = [];
+  var finalState = null;
 
   issue.changelog.histories.forEach(function(history) {
     var dateOccured = parseDate(history.created);
@@ -50,9 +51,15 @@ function getColumnChanges(issue) {
       if (item.field == "status") {
         transitionArray.push({column: item.fromString, time: Math.round((dateOccured - previousDate) / 1000 / 60 / 60 / 24)})
         previousDate = dateOccured;
+        finalState = item.toString;
       }
     }.bind(this));
   });
+
+  transitionArray.push({column: finalState, time: Math.round((new Date() - previousDate) / 1000 / 60 / 60 / 24)})
+
+
+
   return transitionArray;
 }
 
