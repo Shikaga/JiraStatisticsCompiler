@@ -333,6 +333,8 @@
 
 						//callback(data);
 						window.localStorage.setItem("jiraData", response.target.response);
+						statisticsCalculator = new StatisticsCalculator(JSON.parse(window.localStorage.getItem("jiraData")).issues);
+						alert("Complete! Check out the 'statisticsCalculator' object! It will now be available on refresh.")
 					}
 				}
 			};
@@ -342,7 +344,10 @@
 				xhr.setRequestHeader("Authorization", authHeader);
 			}
 
-			var statisticsCalculator = new StatisticsCalculator(JSON.parse(window.localStorage.getItem("jiraData")).issues);
+			if (window.localStorage.getItem("jiraData")) {
+				statisticsCalculator = new StatisticsCalculator(JSON.parse(window.localStorage.getItem("jiraData")).issues);
+			}
+
 
 		</script>
 	</body>

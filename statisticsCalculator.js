@@ -2,7 +2,8 @@ function StatisticsCalculator(issueArray) {
   this.issueArray = issueArray;
 }
 
-StatisticsCalculator.prototype.getPriorities = function() {
+StatisticsCalculator.prototype.getPriorities = function(optionalIssues) {
+  var issues = optionalIssues ? optionalIssues : this.issueArray;
   var priorityMap = {};
   var issueMap = {};
 
@@ -12,7 +13,7 @@ StatisticsCalculator.prototype.getPriorities = function() {
     }
   }
 
-  this.issueArray.forEach(function(issue) {
+  issues.forEach(function(issue) {
     var priorityKey = issue.fields.priority.id;
     var priorityName = issue.fields.priority.name;
 
@@ -22,4 +23,44 @@ StatisticsCalculator.prototype.getPriorities = function() {
   })
 
   return {issues: issueMap, priorityMap: priorityMap}
+}
+
+StatisticsCalculator.prototype.getComponents = function(optionalIssues) {
+  var issues = optionalIssues ? optionalIssues : this.issueArray;
+  var componentMap = {};
+
+  function initialiseComponentIfEmpty(key) {
+    if (!componentMap[key]) {
+      componentMap[key] = [];
+    }
+  }
+
+  issues.forEach(function(issue) {
+    issue.fields.components.forEach(function(component) {
+      initialiseComponentIfEmpty(component.name);
+      componentMap[component.name].push(issue);
+    })
+  })
+
+  return componentArray;
+}
+
+StatisticsCalculator.prototype.getResolution = function(optionalIssues) {
+    var issues = optionalIssues ? optionalIssues : this.issueArray;
+    var resolutionMap = {};
+
+    function initialiseResolutionIfEmpty(key) {
+      if (!resolutionMap[key]) {
+        resolutionMap[key] = [];
+      }
+    }
+
+    issues.forEach(function(issue) {
+      var resolution = issue.fields.resolution ? issue.fields.resolution.name : "No Resolution"
+
+      initialiseResolutionIfEmpty(resolution);
+      resolutionMap[resolution].push(issue);
+    })
+
+    return resolutionMap;
 }
