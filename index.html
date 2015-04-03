@@ -4,41 +4,21 @@
 		<meta name="viewport" content="width=device-width, initial-scale=1.0 user-scalable=no" />
 		<link href="lib/bootstrap-3.2.0-dist/css/bootstrap.css" rel="stylesheet">
 		<script src="lib/require.js"></script>
-		<!--
-		<script src="lib/jquery-1.11.1.min.js"></script>
-		<script src="lib/bootstrap-3.2.0-dist/js/bootstrap.min.js"></script>
-		-->
-
-		<style>
-			.number-btn {
-				width: 30%
-			}
-		</style>
 	</head>
 	<body>
 		<div id="main"></div>
 		<script type="text/javascript">
-		weekMap = {};
-		var startWeek = new Date(2014,7,4);
-		for (var i=0; i < 100; i++) {
-			var thisWeek = new Date(startWeek.getTime());
-			thisWeek.setDate(startWeek.getDate() + i*7);
-			weekMap[thisWeek.getTime()] = {raised: [], resolved: []}
-		}
-
-		function parseDate(dateTimeString) {
-			var dateString = dateTimeString.substr(0,dateTimeString.indexOf("T"));
-			var dateArray = dateString.split("-");
-			var date = new Date(dateArray[0],dateArray[1]-1,dateArray[2]);
-			return date;
-		}
-
-
+			function parseDate(dateTimeString) {
+				var dateString = dateTimeString.substr(0,dateTimeString.indexOf("T"));
+				var dateArray = dateString.split("-");
+				var date = new Date(dateArray[0],dateArray[1]-1,dateArray[2]);
+				return date;
+			}
 		</script>
+
 		<script>
 			require(['lib/react', 'JiraStatisticsCompilerPanel', 'StatisticsCalculator', 'IssueHandler'], function(React, JiraStatisticsCompilerPanel, StatisticsCalculator, IssueHandler) {
 				React.renderComponent(JiraStatisticsCompilerPanel(), document.getElementById('main'));
-
 				var issueHandler = new IssueHandler();
 			});
 		</script>
