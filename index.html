@@ -2,13 +2,12 @@
 	<head>
 		<title>Agile Board Stock Taker</title>
 		<meta name="viewport" content="width=device-width, initial-scale=1.0 user-scalable=no" />
-		<script src="lib/react.js"></script>
-		<script src="lib/jsxTransformer.js"></script>
+		<link href="lib/bootstrap-3.2.0-dist/css/bootstrap.css" rel="stylesheet">
+		<script src="lib/require.js"></script>
+		<!--
 		<script src="lib/jquery-1.11.1.min.js"></script>
 		<script src="lib/bootstrap-3.2.0-dist/js/bootstrap.min.js"></script>
-		<link href="lib/bootstrap-3.2.0-dist/css/bootstrap.css" rel="stylesheet">
-		<script src="statisticsCalculator.js"></script>
-		<script src="AgileBoardStockTaker.js"></script>
+		-->
 
 		<style>
 			.number-btn {
@@ -37,59 +36,59 @@
 
 		</script>
 		<script>
-			React.renderComponent(AgileBoardStockTaker(), document.getElementById('main'));
+			require(['lib/react', 'AgileBoardStockTaker', "StatisticsCalculator"], function(React, AgileBoardStockTaker, StatisticsCalculator) {
+				React.renderComponent(AgileBoardStockTaker(), document.getElementById('main'));
 
-			function IssueHandler() {
-				this.issues = [];
-			}
+				function IssueHandler() {
+					this.issues = [];
+				}
 
-			IssueHandler.prototype.addIssue = function(issue) {
-				this.issues.push(issue);
-			}
+				IssueHandler.prototype.addIssue = function(issue) {
+					this.issues.push(issue);
+				}
 
-			IssueHandler.prototype.getIssue = function(issueId) {
-				for (var i=0; i < this.issues.length; i++) {
-					var issue = this.issues[i];
-					if (issue.id.match(/\d+/)[0] === issueId) {
-						return issue;
+				IssueHandler.prototype.getIssue = function(issueId) {
+					for (var i=0; i < this.issues.length; i++) {
+						var issue = this.issues[i];
+						if (issue.id.match(/\d+/)[0] === issueId) {
+							return issue;
+						}
 					}
+					return null;
 				}
-				return null;
-			}
 
-			var issueHandler = new IssueHandler();
-			getDataWithJSON = function(callback, username, password, requestUrl) {
-				var xhr = new XMLHttpRequest();
-				xhr.open("GET", "https://cors-anywhere.herokuapp.com/" + requestUrl)
-				if (this.username !== "") {
-					this.setAuthorizationHeader(xhr, username, password);
-				}
-				xhr.setRequestHeader("x-requested-with", "love");
-				xhr.send();
-				xhr.onload = function(response) {
-					if (this.status === 401) {
-						callback(this.status);
-					} else {
-						//var data = JSON.parse(response.target.response);
-
-						//callback(data);
-						window.localStorage.setItem("jiraData", response.target.response);
-						statisticsCalculator = new StatisticsCalculator(JSON.parse(window.localStorage.getItem("jiraData")).issues);
-						alert("Complete! Check out the 'statisticsCalculator' object! It will now be available on refresh.")
+				var issueHandler = new IssueHandler();
+				getDataWithJSON = function(callback, username, password, requestUrl) {
+					var xhr = new XMLHttpRequest();
+					xhr.open("GET", "https://cors-anywhere.herokuapp.com/" + requestUrl)
+					if (this.username !== "") {
+						this.setAuthorizationHeader(xhr, username, password);
 					}
+					xhr.setRequestHeader("x-requested-with", "love");
+					xhr.send();
+					xhr.onload = function(response) {
+						if (this.status === 401) {
+							callback(this.status);
+						} else {
+							//var data = JSON.parse(response.target.response);
+
+							//callback(data);
+							window.localStorage.setItem("jiraData", response.target.response);
+							statisticsCalculator = new StatisticsCalculator(JSON.parse(window.localStorage.getItem("jiraData")).issues);
+							alert("Complete! Check out the 'statisticsCalculator' object! It will now be available on refresh.")
+						}
+					}
+				};
+
+				setAuthorizationHeader = function(xhr, username, password) {
+					var authHeader = "Basic "+btoa(username + ":" + password);
+					xhr.setRequestHeader("Authorization", authHeader);
 				}
-			};
 
-			setAuthorizationHeader = function(xhr, username, password) {
-				var authHeader = "Basic "+btoa(username + ":" + password);
-				xhr.setRequestHeader("Authorization", authHeader);
-			}
-
-			if (window.localStorage.getItem("jiraData")) {
-				statisticsCalculator = new StatisticsCalculator(JSON.parse(window.localStorage.getItem("jiraData")).issues);
-			}
-
-
+				if (window.localStorage.getItem("jiraData")) {
+					statisticsCalculator = new StatisticsCalculator(JSON.parse(window.localStorage.getItem("jiraData")).issues);
+				}
+			});
 		</script>
 	</body>
 </html>
