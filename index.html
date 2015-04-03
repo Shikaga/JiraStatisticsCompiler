@@ -1,0 +1,347 @@
+<html>
+	<head>
+		<title>Agile Board Stock Taker</title>
+		<meta name="viewport" content="width=device-width, initial-scale=1.0 user-scalable=no" />
+		<script src="lib/react.js"></script>
+		<script src="lib/jsxTransformer.js"></script>
+		<script src="lib/jquery-1.11.1.min.js"></script>
+		<script src="lib/bootstrap-3.2.0-dist/js/bootstrap.min.js"></script>
+		<link href="lib/bootstrap-3.2.0-dist/css/bootstrap.css" rel="stylesheet">
+
+		<style>
+			.number-btn {
+				width: 30%
+			}
+		</style>
+	</head>
+	<body>
+		<div id="main"></div>
+		<script type="text/javascript">
+		weekMap = {};
+		var startWeek = new Date(2014,7,4);
+		for (var i=0; i < 100; i++) {
+			var thisWeek = new Date(startWeek.getTime());
+			thisWeek.setDate(startWeek.getDate() + i*7);
+			weekMap[thisWeek.getTime()] = {raised: [], resolved: []}
+		}
+
+
+		</script>
+		<script type="text/jsx">
+			/** @jsx React.DOM */
+
+			var LoginPanel = React.createClass({
+				getInitialState: function() {
+					return {
+						url: "https://jira.caplin.com",
+						username: "jonp",
+						password: ""
+					}
+				},
+				changeUrl: function(e) {
+					this.setState({
+						url: e.target.value
+					});
+				},
+				changeUsername: function(e) {
+					this.setState({
+						username: e.target.value
+					});
+				},
+				changePassword: function(e) {
+					this.setState({
+						password: e.target.value
+					});
+				},
+				handleKeyPress: function(e,f,g) {
+					if (e.which == 13) {
+						this.login();
+					}
+				},
+				login: function() {
+					this.props.login(this.state.url, this.state.username, this.state.password);
+				},
+				render: function() {
+					return <div className="panel panel-default">
+						<div className="panel-body">
+							<div className="input-group">
+								<span className="input-group-addon">Jira Url</span>
+								<input type="text" onChange={this.changeUrl} value={this.state.url} class="form-control" placeholder="Jira Url"/>
+							</div><br/>
+							<div className="input-group">
+								<span className="input-group-addon">Username</span>
+								<input type="text" onChange={this.changeUsername} value={this.state.username} class="form-control" placeholder="Username"/>
+							</div><br/>
+							<div className="input-group">
+								<span className="input-group-addon">Password</span>
+								<input type="text" onKeyUp={this.handleKeyPress} onChange={this.changePassword}  type="password" value={this.state.password} class="form-control" placeholder="Password"/>
+							</div>
+							<div className="panel-body">
+								<div className="col-xs-12 col-md-12"><button type="button" onClick={this.login} className="btn btn-success btn-block">Login</button></div>
+							</div>
+						</div>
+					</div>
+				}
+			});
+
+
+			var AgileBoardStockTaker = React.createClass({
+				getInitialState: function() {
+					return {
+						issueId: "",
+						selectedIssueId: null,
+						issuesChanged: [],
+						mode: "login",
+						projectData: null,
+						issues: null
+					}
+				},
+				doneClicked: function() {
+					this.setState({
+						selectedIssueId: this.state.issueId,
+						issueId: ""
+					});
+				},
+				completeClicked: function() {
+					this.setState({
+						mode: "changed"
+					});
+				},
+				numberClicked: function(number) {
+					this.setState({
+						issueId: this.state.issueId + number
+					})
+				},
+				issueChanged: function(data) {
+					this.setState({
+						issuesChanged: this.state.issuesChanged.concat(data)
+					});
+				},
+				moreClicked: function() {
+					this.setState({
+						mode: "input"
+					});
+				},
+				login: function(url, username, password) {
+					window.url = url;
+					this.state.url = url;
+					this.state.username = username;
+					this.state.password = password;
+					this.setState({
+						url: url,
+						username: username,
+						password: password,
+						mode: "loggedIn"
+					});
+					this.selectProject(80);
+					// getDataWithJSON(function(data) {
+					// 	var projects = [];
+					// 	data.views.forEach(function(view) {
+					// 		console.log(view.name, view.id, view.key, view);
+					// 		projects.push({name: view.name, id: view.id, key: view.key})
+					// 	});
+					// 	this.setState({projectData: projects});
+					// }.bind(this), username, password, url + "/rest/greenhopper/1.0/rapidviews/viewsData.json");
+				},
+				saveLoginDetails: function() {
+
+				},
+				parseDate: function(dateTimeString) {
+					var dateString = dateTimeString.substr(0,dateTimeString.indexOf("T"));
+					var dateArray = dateString.split("-");
+					var date = new Date(dateArray[0],dateArray[1]-1,dateArray[2]);
+					return date;
+
+				},
+				selectProject: function(projectId) {
+					getDataWithJSON(function(projectData) {
+						console.log("data", projectData)
+						var getOrderedIssues = function(x) {
+							var issues = [];
+							x.issues.forEach(function(issue) {
+								var finalState = null;
+								var finalDate = null;
+								issue.changelog.histories.forEach(function(history) {
+								var dateOccured = this.parseDate(history.created);
+								history.items.forEach(function(item) {
+									if (item.field == "status" && item.toString == "Resolved") {
+										finalState = item.toString;
+										finalDate = dateOccured;
+									}
+								}.bind(this));
+							}.bind(this))
+							issues.push({summary: issue.fields.summary, key: issue.key, createdDate: this.parseDate(issue.fields.created), resolvedDate: finalDate})
+						}.bind(this))
+							this.setState({issues: issues});
+						}.bind(this)
+
+						getOrderedIssues(projectData);
+
+					}.bind(this), this.state.username, this.state.password, this.state.url + "/rest/api/latest/search?jql=project=" + window.location.search.substr(1) + " AND issuetype=Bug&maxResults=1000&expand=changelog");
+				},
+				render: function() {
+					if (this.state.mode === "login") {
+						return <div className="container"><LoginPanel login={this.login}></LoginPanel></div>
+					} else if (this.state.mode === "loggedIn") {
+						return StatisticsPanel({issues: this.state.issues})
+					} else {
+						return <div className="container">
+							Something went terribly wrong...
+						</div>
+					}
+				}
+			});
+
+			var StatisticsPanel = React.createClass({
+				getMondayForDate: function(date) {
+					if (date) {
+						var returnDate = new Date(date.getYear() + 1900, date.getMonth(), date.getDate());
+						returnDate.setDate(returnDate.getDate() - returnDate.getDay() + 1);
+						return returnDate;
+					} else {
+						return null;
+					}
+
+				},
+				populateRaised: function(x) {
+					if (x) {
+						x.forEach(function(el) {
+							var monday = this.getMondayForDate(el.createdDate);
+							weekMap[monday.getTime()].raised.push(el);
+						}.bind(this))
+					}
+
+				},
+				populateResolved: function(x) {
+					if (x) {
+						x.forEach(function(el) {
+							var monday = this.getMondayForDate(el.resolvedDate);
+							if (monday) {
+								weekMap[monday.getTime()].resolved.push(el);
+							}
+						}.bind(this))
+					}
+
+				},
+				render: function() {
+					var style = {
+						margin: "20px",
+						minHeight: "50%",
+						maxHeight: "50%"
+					}
+					this.populateRaised(this.props.issues);
+					this.populateResolved(this.props.issues);
+
+					var weekElements = [];
+					for (var i in weekMap) {
+						if (weekMap[i].raised.length > 0 || weekMap[i].resolved.length > 0) {
+							var week = weekMap[i];
+							var date = new Date();
+							date.setTime(i);
+
+							weekElements.push(WeekPanel({date: date, raisedIssues: week.raised, resolvedIssues: week.resolved}))
+						}
+					}
+
+					return <div className="container">
+						{weekElements}
+					</div>
+				}
+			})
+
+			var WeekPanel = React.createClass({
+				render: function() {
+					styleMain = {
+						clear:"both"
+					}
+					styleColumn = {
+						float:"left",
+						width: "300px"
+					}
+					dataStyle = {
+						height: "0px"
+					}
+
+					var raised = [];
+					this.props.raisedIssues.forEach(function(issue) {
+						raised.push(IssuePanel({issue: issue}));
+					})
+
+					var resolved = [];
+					this.props.resolvedIssues.forEach(function(issue) {
+						resolved.push(IssuePanel({issue: issue}));
+					})
+
+					var createdId = Math.random().toString().substr(2);
+					var resolvedId = Math.random().toString().substr(2);
+
+					return <div style={styleMain}>
+							<h1>{this.props.date.getDate()}/{this.props.date.getMonth() + 1}/{this.props.date.getYear() + 1900}</h1>
+							<div style={styleColumn}>
+								<h3><a data-toggle="collapse" data-target={"#" + createdId} aria-expanded="false" aria-controls={createdId}>Raised {raised.length}</a></h3>
+								<div id={createdId} style={dataStyle} className="collapse">{raised}</div>
+							</div>
+							<div style={styleColumn}>
+								<h3><a data-toggle="collapse" data-target={"#" + resolvedId} aria-expanded="false" aria-controls={resolvedId}>Resolved  {resolved.length}</a></h3>
+								<div id={resolvedId} style={dataStyle} className="collapse"> {resolved}</div>
+							</div>
+							</div>
+				}
+			})
+
+			var IssuePanel = React.createClass({
+				render: function() {
+					return <div><a target="_blank" href={url + "/browse/" + this.props.issue.key}>{this.props.issue.key}</a> : {this.props.issue.summary}</div>
+				}
+			})
+
+			React.renderComponent(<AgileBoardStockTaker/>, document.getElementById('main'));
+
+			function IssueHandler() {
+				this.issues = [];
+			}
+
+			IssueHandler.prototype.addIssue = function(issue) {
+				this.issues.push(issue);
+			}
+
+			IssueHandler.prototype.getIssue = function(issueId) {
+				for (var i=0; i < this.issues.length; i++) {
+					var issue = this.issues[i];
+					if (issue.id.match(/\d+/)[0] === issueId) {
+						return issue;
+					}
+				}
+				return null;
+			}
+
+			var issueHandler = new IssueHandler();
+			getDataWithJSON = function(callback, username, password, requestUrl) {
+				var xhr = new XMLHttpRequest();
+				xhr.open("GET", "https://cors-anywhere.herokuapp.com/" + requestUrl)
+				if (this.username !== "") {
+					this.setAuthorizationHeader(xhr, username, password);
+				}
+				xhr.setRequestHeader("x-requested-with", "love");
+				xhr.send();
+				xhr.onload = function(response) {
+					if (this.status === 401) {
+						callback(this.status);
+					} else {
+						//var data = JSON.parse(response.target.response);
+
+						//callback(data);
+						window.localStorage.setItem("jiraData", response.target.response);
+						alert('Complete');
+					}
+				}
+			};
+
+			setAuthorizationHeader = function(xhr, username, password) {
+				var authHeader = "Basic "+btoa(username + ":" + password);
+				xhr.setRequestHeader("Authorization", authHeader);
+			}
+
+		</script>
+	</body>
+</html>
