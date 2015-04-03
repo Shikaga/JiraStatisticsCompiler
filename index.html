@@ -17,7 +17,7 @@
 		</script>
 
 		<script>
-			require(['lib/react', 'JiraStatisticsCompilerPanel', 'StatisticsCalculator', 'IssueHandler'], function(React, JiraStatisticsCompilerPanel, StatisticsCalculator, IssueHandler) {
+			require(['lib/react', 'JiraStatisticsCompilerPanel', 'StatCalculator', 'IssueHandler'], function(React, JiraStatisticsCompilerPanel, StatisticsCalculator, IssueHandler) {
 				React.renderComponent(JiraStatisticsCompilerPanel(), document.getElementById('main'));
 				var issueHandler = new IssueHandler();
 			});

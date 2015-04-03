@@ -1,4 +1,4 @@
-define(['StatisticsCalculator'], function(StatisticsCalculator) {
+define(['StatCalculator'], function(StatCalculator) {
   function IssueHandler() {
     this.issues = [];
   }
@@ -33,7 +33,7 @@ define(['StatisticsCalculator'], function(StatisticsCalculator) {
 
         //callback(data);
         window.localStorage.setItem("jiraData", response.target.response);
-        statisticsCalculator = new StatisticsCalculator(JSON.parse(window.localStorage.getItem("jiraData")).issues);
+        statisticsCalculator = new StatCalculator(JSON.parse(window.localStorage.getItem("jiraData")).issues);
         alert("Complete! Check out the 'statisticsCalculator' object! It will now be available on refresh.")
       }
     }
@@ -45,7 +45,7 @@ define(['StatisticsCalculator'], function(StatisticsCalculator) {
   }
 
   if (window.localStorage.getItem("jiraData")) {
-    statisticsCalculator = new StatisticsCalculator(JSON.parse(window.localStorage.getItem("jiraData")).issues);
+    statisticsCalculator = new StatCalculator(JSON.parse(window.localStorage.getItem("jiraData")).issues);
   }
 
   return IssueHandler;
