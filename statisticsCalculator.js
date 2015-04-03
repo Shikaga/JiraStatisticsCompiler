@@ -42,7 +42,7 @@ StatisticsCalculator.prototype.getComponents = function(optionalIssues) {
     })
   })
 
-  return componentArray;
+  return componentMap;
 }
 
 StatisticsCalculator.prototype.getResolution = function(optionalIssues) {
