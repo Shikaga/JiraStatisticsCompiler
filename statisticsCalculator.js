@@ -21,6 +21,41 @@ function getResolutionDate(issue) {
   return finalDate;
 }
 
+function getTotalTimeInColumns(issue) {
+  var columnChanges = getColumnChanges(issue);
+  var columnMap = {};
+
+  function initialiseColumnIfEmpty(key) {
+    if (!columnMap[key]) {
+      columnMap[key] = 0;
+    }
+  }
+
+  columnChanges.forEach(function(change) {
+    initialiseColumnIfEmpty(change.column);
+    columnMap[change.column] += change.time;
+  })
+
+  return columnMap;
+
+}
+
+function getColumnChanges(issue) {
+  var previousDate = getStartDate(issue);
+  var transitionArray = [];
+
+  issue.changelog.histories.forEach(function(history) {
+    var dateOccured = parseDate(history.created);
+    history.items.forEach(function(item) {
+      if (item.field == "status") {
+        transitionArray.push({column: item.fromString, time: Math.round((dateOccured - previousDate) / 1000 / 60 / 60 / 24)})
+        previousDate = dateOccured;
+      }
+    }.bind(this));
+  });
+  return transitionArray;
+}
+
 function getResolutionTime(issue) {
   var startDate = getStartDate(issue);
   var resolutionDate = getResolutionDate(issue);
@@ -133,4 +168,17 @@ StatisticsCalculator.prototype.getResolutionTime = function(optionalIssues) {
     })
 
     return resolutionMap;
+}
+
+StatisticsCalculator.prototype.getColumnDuration = function(optionalIssues) {
+    var issues = optionalIssues ? optionalIssues : this.issueArray;
+    var issuesArray = [];
+
+    issues.forEach(function(issue) {
+      var totalTimeInColumns = getTotalTimeInColumns(issue);
+
+      issuesArray.push({issue: issue, columnDuration: totalTimeInColumns})
+    })
+
+    return issuesArray;
 }
