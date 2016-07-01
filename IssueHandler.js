@@ -31,10 +31,8 @@ define(['StatCalculator'], function(StatCalculator) {
       } else {
         //var data = JSON.parse(response.target.response);
 
-        //callback(data);
-        window.localStorage.setItem("jiraData", response.target.response);
-        statisticsCalculator = new StatCalculator(JSON.parse(window.localStorage.getItem("jiraData")).issues);
-        alert("Complete! Check out the 'statisticsCalculator' object! It will now be available on refresh.")
+        callback(response);
+
       }
     }
   };

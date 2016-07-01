@@ -18,7 +18,65 @@
 
 		<script>
 			require(['lib/react', 'JiraStatisticsCompilerPanel', 'StatCalculator', 'IssueHandler'], function(React, JiraStatisticsCompilerPanel, StatisticsCalculator, IssueHandler) {
-				React.renderComponent(JiraStatisticsCompilerPanel(), document.getElementById('main'));
+				comments = localStorage.comments ? JSON.parse(localStorage.comments) : {};
+
+				function populateStatusEvent(event, change) {
+					if (change.items) {
+						change.items.forEach(function(item) {
+							if (item.field === "status") {
+								event.statusChanges.push(item.toString);
+							}
+						})
+					}
+				}
+
+				function populateComments(event, comment) {
+					if (comment.body.indexOf("Call:") !== -1 || comment.body.indexOf("Onsite:") !== -1 ) {
+						event.comments.push(comment.body);
+					} else {
+//						console.log(comment.body);
+					}
+				}
+
+				function populateEvent(event) {
+					var issueChanges = statisticsCalculator.issueArray[0].changelog.histories;
+					for (var i=0; i < issueChanges.length; i++) {
+						if (parseDate(issueChanges[i].created).getTime() === event.date.getTime()) {
+							populateStatusEvent(event, issueChanges[i]);
+						}
+					}
+					for (var i=0; i < comments.comments.length; i++) {
+						var comment = comments.comments[i];
+						if (parseDate(comment.created).getTime() === event.date.getTime()) {
+							populateComments(event, comment);
+						}
+					}
+				}
+
+				var eventArray = [];
+				if (statisticsCalculator.issueArray) {
+					var jiraId = statisticsCalculator.issueArray[0].key;
+					var issueChanges = statisticsCalculator.issueArray[0].changelog.histories;
+					var issueCreated = parseDate(issueChanges[0].created);
+					var issueLastUpdate = parseDate(issueChanges[issueChanges.length-1].created);
+
+					var iteratingDate =new Date(issueCreated.getTime());
+
+					while(iteratingDate <= issueLastUpdate) {
+						var event = {};
+						event.date = new Date(iteratingDate.getTime());
+
+						event.statusChanges = [];
+						event.comments = [];
+						populateEvent(event);
+						eventArray.push(event);
+						iteratingDate.setDate(iteratingDate.getDate() + 1);
+					}
+					console.log(eventArray);
+				}
+
+
+				React.renderComponent(JiraStatisticsCompilerPanel({jiraId: jiraId, events: eventArray}), document.getElementById('main'));
 				var issueHandler = new IssueHandler();
 			});
 		</script>
