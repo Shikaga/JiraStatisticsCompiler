@@ -15,9 +15,7 @@ define(['lib/react', 'LoginPanel', 'TimelinePanel', 'StatCalculator'], function(
             }, this.state.username, this.state.password,
             this.state.url + "/rest/api/latest/search?jql=issue=" + window.location.search.substr(1) + "&maxResults=1000&expand=changelog");
         getDataWithJSON(function(response) {
-            debugger;
                 window.localStorage.setItem("comments", response.target.response);
-                statisticsCalculator = new StatCalculator(JSON.parse(window.localStorage.getItem("jiraData")).issues);
                 alert("Comments loaded. Please restart the app to see the timeline")
             }, this.state.username, this.state.password,
             this.state.url + "/rest/api/latest/issue/" + window.location.search.substr(1) + "/comment");

@@ -19,7 +19,10 @@
 		<script>
 			require(['lib/react', 'JiraStatisticsCompilerPanel', 'StatCalculator', 'IssueHandler'], function(React, JiraStatisticsCompilerPanel, StatisticsCalculator, IssueHandler) {
 				comments = localStorage.comments ? JSON.parse(localStorage.comments) : {};
-
+				statisticsCalculator = null;
+				if (window.localStorage.getItem("jiraData") && JSON.parse(window.localStorage.getItem("jiraData")).issues) {
+					statisticsCalculator = new StatisticsCalculator(JSON.parse(window.localStorage.getItem("jiraData")).issues);
+				}
 				function populateStatusEvent(event, change) {
 					if (change.items) {
 						change.items.forEach(function(item) {
