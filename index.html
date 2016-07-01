@@ -54,7 +54,7 @@
 				}
 
 				var eventArray = [];
-				if (statisticsCalculator.issueArray) {
+				if (statisticsCalculator && statisticsCalculator.issueArray) {
 					var jiraId = statisticsCalculator.issueArray[0].key;
 					var issueChanges = statisticsCalculator.issueArray[0].changelog.histories;
 					var issueCreated = parseDate(issueChanges[0].created);
